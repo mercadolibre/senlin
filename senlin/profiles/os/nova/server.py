@@ -240,6 +240,7 @@ class ServerProfile(base.Profile):
 
         self._novaclient = None
         self._neutronclient = None
+        self._neutron_lbaas_client = None
         self.server_id = None
 
     def nova(self, obj):
@@ -269,6 +270,15 @@ class ServerProfile(base.Profile):
         params = self._build_conn_params(obj.user, obj.project)
         self._neutronclient = driver_base.SenlinDriver().network(params)
         return self._neutronclient
+
+    def neutron_lbaas(self, obj):
+        ''' Lbaas dirver load! '''
+        if self._neutron_lbaas_client is not None:
+            return self._neutron_lbaas_client
+        params = self._build_conn_params(obj.user, obj.project)
+        self._neutron_lbaas_client = driver_base.SenlinDriver().loadbalancing(params)
+        return self._neutron_lbaas_client
+
 
     def do_validate(self, obj):
         '''Validate if the spec has provided valid info for server creation.'''
@@ -602,13 +612,27 @@ class ServerProfile(base.Profile):
         self.server_id = obj.physical_id
 
         try:
-            server = self.nova(obj).server_get(self.server_id)
+            server  = self.nova(obj).server_get(self.server_id)
+            member = self.neutron_lbaas(obj).member_status(server.data['lb_member'], '')
         except Exception as ex:
             LOG.error('Error: %s' % six.text_type(ex))
             return False
 
         if (server is None or server.status != 'ACTIVE'):
             return False
+
+        
+        LOG.info("##################################")
+        LOG.info("string member: " + str(member))
+        LOG.info("vars member: " + vars(member))
+        LOG.info("dir member: " + dir(member))
+
+        LOG.info("string server: " + str(server))
+        LOG.info("vars server: " + vars(server))
+        LOG.info("dir server: " + dir(server))
+
+        LOG.info("##################################")
+
 
         return True
 
