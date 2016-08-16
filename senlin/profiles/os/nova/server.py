@@ -601,10 +601,13 @@ class ServerProfile(base.Profile):
             return False
 
         self.server_id = obj.physical_id
+        import pdb;pdb.set_trace() 
+        LOG.info("string obj: " + str(obj.data['lb_member']))
+        LOG.info("struc obj: " + str(vars(obj)))
 
         try:
             server  = self.nova(obj).server_get(self.server_id)
-            member = self.neutron(obj).member_status(server.data['lb_member'], '')
+            member = self.neutron(obj).member_status('', obj.data['lb_member'])
         except Exception as ex:
             LOG.error('Error: %s' % six.text_type(ex))
             return False
@@ -613,13 +616,10 @@ class ServerProfile(base.Profile):
             return False
 
         
-        LOG.info("##################################")
         LOG.info("string member: " + str(member))
-        LOG.info("vars member: " + vars(member))
-        LOG.info("dir member: " + dir(member))
+        LOG.info("dir member: " + str(dir(member)))
 
         LOG.info("string server: " + str(server))
-        LOG.info("vars server: " + vars(server))
         LOG.info("dir server: " + dir(server))
 
         LOG.info("##################################")
