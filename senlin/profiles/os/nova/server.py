@@ -240,7 +240,6 @@ class ServerProfile(base.Profile):
 
         self._novaclient = None
         self._neutronclient = None
-        self._neutron_lbaas_client = None
         self.server_id = None
 
     def nova(self, obj):
@@ -270,14 +269,6 @@ class ServerProfile(base.Profile):
         params = self._build_conn_params(obj.user, obj.project)
         self._neutronclient = driver_base.SenlinDriver().network(params)
         return self._neutronclient
-
-    def neutron_lbaas(self, obj):
-        ''' Lbaas dirver load! '''
-        if self._neutron_lbaas_client is not None:
-            return self._neutron_lbaas_client
-        params = self._build_conn_params(obj.user, obj.project)
-        self._neutron_lbaas_client = driver_base.SenlinDriver().loadbalancing(params)
-        return self._neutron_lbaas_client
 
 
     def do_validate(self, obj):
@@ -613,7 +604,7 @@ class ServerProfile(base.Profile):
 
         try:
             server  = self.nova(obj).server_get(self.server_id)
-            member = self.neutron_lbaas(obj).member_status(server.data['lb_member'], '')
+            member = self.neutron(obj).member_status(server.data['lb_member'], '')
         except Exception as ex:
             LOG.error('Error: %s' % six.text_type(ex))
             return False

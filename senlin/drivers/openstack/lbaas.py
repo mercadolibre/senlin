@@ -316,17 +316,5 @@ class LoadBalancerDriver(base.DriverBase):
         return True
 
 
-from neutronclient.v2_0 import client
-endpoint_url='http://10.32.135.12:9696/'
-token='gAAAAABXs2lRKQTAkyYuRY4Mm9cYnyNWwfbgP59QV0qfiX7hjzRuhI2Mef1k7qrhMgTmZ7Ii7xcCJi0HoYKwTSV3QSKAmD1JC9ck6aR8XwxHeFINdC4qqNf-Tx4zspdd7pj001s7EuA5BXOwnLr16giuLgQ5PlKkKfNut4pgFAYgy5QwLjqRHUg'
-neutron_cli = client.Client(endpoint_url=endpoint_url, token=token)
-
-    def member_status(self, lb_id, member_id):
-        lb_id = '56b1eff6-0507-46a9-b10a-fb97c8f2e38c'
-        member_statuses_dict = neutron_cli.retrieve_loadbalancer_status(lb_id)
-        for mem in member_statuses_dict['statuses']['loadbalancer']['pools'][0]['members']: 
-            if mem['id'] == 'member_id': 
-                return mem['provisioning_status']
-        return None
 
 
